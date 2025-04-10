@@ -1,0 +1,23 @@
+# Archivos y carpetas relacionadas con Git
+.git
+.gitignore
+
+# Bases de datos locales
+#*.sqlite3
+#chroma_db/
+
+# Archivos de logs o caché
+*.log
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos virtuales (por si acaso)
+venv/
+.env/
+.env
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
