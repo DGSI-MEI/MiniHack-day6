@@ -1,13 +1,14 @@
 import chromadb
 import requests
 from sentence_transformers import SentenceTransformer
+import markdown  # Importamos la librería markdown para la conversión
 
 # Configuración de DeepSeek API (¡Asegúrate de reemplazar con tu API key!)
 DEEPSEEK_API_KEY = "sk-45273889dcbe407480bb5f35931d01f4"
 DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions"
 
 # Ruta al diccionario semántico (archivo dicc.md)
-DICCIONARIO_PATH = "dicc.md"
+DICCIONARIO_PATH = "markdown_pages/dicc.md"
 
 # Conectar a ChromaDB
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
@@ -70,28 +71,11 @@ def enviar_a_deepseek(contexto, pregunta):
     response = requests.post(DEEPSEEK_URL, headers=headers, json=data)
     
     if response.status_code == 200:
-        return response.json()["choices"][0]["message"]["content"]
+        # Convertir la respuesta en Markdown a texto legible
+        markdown_content = response.json()["choices"][0]["message"]["content"]
+        text_content = markdown.markdown(markdown_content)  # Convertimos el Markdown a HTML
+        return text_content  # Retornamos como texto plano
     else:
         print("❌ ERROR con la API:", response.status_code, response.text)
         return "Hubo un error con la API de DeepSeek."
 
-def chatbot():
-    """Ejecuta el chatbot en la consola."""
-    print("ChatBot: ¡Hola! Pregunta sobre los documentos Markdown. Escribe 'salir' para terminar.")
-
-    while True:
-        user_input = input("Tú: ").strip()
-        if user_input.lower() == "salir":
-            print("ChatBot: ¡Hasta luego!")
-            break
-
-        # 1️⃣ Buscar en ChromaDB
-        contexto = buscar_en_chromadb(user_input)
-        
-        # 2️⃣ Enviar a DeepSeek para mejorar la respuesta, complementando con el diccionario semántico
-        respuesta = enviar_a_deepseek(contexto, user_input)
-        
-        print("ChatBot:", respuesta)
-
-if __name__ == "__main__":
-    chatbot()
